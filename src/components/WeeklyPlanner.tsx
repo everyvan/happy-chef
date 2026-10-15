@@ -24,6 +24,7 @@ interface WeeklyPlannerProps {
   setServings: (servings: number) => void;
   activeStore: SupermarketStore;
   setActiveStore: (store: SupermarketStore) => void;
+  recipes?: Recipe[];
   onSelectRecipe: (recipe: Recipe) => void;
   onOpenSwapModal: (day: string, mealType: 'lunch' | 'dinner') => void;
   onOpenPresetModal: () => void;
@@ -37,6 +38,7 @@ export const WeeklyPlanner: React.FC<WeeklyPlannerProps> = ({
   setServings,
   activeStore,
   setActiveStore,
+  recipes = RECIPES,
   onSelectRecipe,
   onOpenSwapModal,
   onOpenPresetModal,
@@ -44,9 +46,9 @@ export const WeeklyPlanner: React.FC<WeeklyPlannerProps> = ({
 }) => {
   const recipeMap = React.useMemo(() => {
     const map = new Map<string, Recipe>();
-    RECIPES.forEach(r => map.set(r.id, r));
+    recipes.forEach(r => map.set(r.id, r));
     return map;
-  }, []);
+  }, [recipes]);
 
   // Compute weekly metrics
   const { totalEstimatedCost, averageCookTime, nutriGradeACount, plannedMealsCount } = React.useMemo(() => {

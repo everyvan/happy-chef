@@ -1,5 +1,5 @@
 import React from 'react';
-import { DayPlan, SupermarketStore, IngredientCategory } from '../types/mealPlan';
+import { DayPlan, SupermarketStore, IngredientCategory, Recipe } from '../types/mealPlan';
 import { RECIPES } from '../data/recipes';
 import { 
   ShoppingBag, 
@@ -19,6 +19,7 @@ interface GroceryListProps {
   servings: number;
   activeStore: SupermarketStore;
   setActiveStore: (store: SupermarketStore) => void;
+  recipes?: Recipe[];
 }
 
 interface ConsolidatedItem {
@@ -46,7 +47,8 @@ export const GroceryList: React.FC<GroceryListProps> = ({
   plan,
   servings,
   activeStore,
-  setActiveStore
+  setActiveStore,
+  recipes = RECIPES
 }) => {
   const [checkedItems, setCheckedItems] = React.useState<Set<string>>(new Set());
   const [customItems, setCustomItems] = React.useState<Array<{ id: string; name: string; category: IngredientCategory; price: number }>>([]);
@@ -57,7 +59,7 @@ export const GroceryList: React.FC<GroceryListProps> = ({
   // Consolidate ingredients from the weekly plan
   const consolidated = React.useMemo(() => {
     const map = new Map<string, ConsolidatedItem>();
-    const recipeMap = new Map(RECIPES.map(r => [r.id, r]));
+    const recipeMap = new Map<string, Recipe>(recipes.map(r => [r.id, r]));
     const ratio = servings / 2; // base recipes are 2 pax
 
     plan.forEach(day => {

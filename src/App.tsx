@@ -33,11 +33,20 @@ export default function App() {
   });
   const [autoPlanModalOpen, setAutoPlanModalOpen] = React.useState(false);
   const [freemiumModalOpen, setFreemiumModalOpen] = React.useState(false);
+  const [customRecipes, setCustomRecipes] = React.useState<Recipe[]>([]);
+
+  // Combined recipe catalog including live-loaded external TheMealDB recipes
+  const allRecipes = React.useMemo(() => {
+    const map = new Map<string, Recipe>();
+    RECIPES.forEach(r => map.set(r.id, r));
+    customRecipes.forEach(r => map.set(r.id, r));
+    return Array.from(map.values());
+  }, [customRecipes]);
 
   // Grocery count calculated from current weekly plan
   const groceryCount = React.useMemo(() => {
     const uniqueIngredients = new Set<string>();
-    const recipeMap = new Map(RECIPES.map(r => [r.id, r]));
+    const recipeMap = new Map(allRecipes.map(r => [r.id, r]));
 
     plan.forEach(day => {
       [day.lunchRecipeId, day.dinnerRecipeId].forEach(id => {
@@ -48,7 +57,7 @@ export default function App() {
     });
 
     return uniqueIngredients.size;
-  }, [plan]);
+  }, [plan, allRecipes]);
 
   // Open swap modal for specific day and meal
   const handleOpenSwapModal = (day: string, mealType: 'lunch' | 'dinner') => {
@@ -58,6 +67,14 @@ export default function App() {
       mealType
     });
   };
+
+  // Register external recipe if new
+  const registerRecipe = React.useCallback((recipe: Recipe) => {
+    setCustomRecipes(prev => {
+      if (prev.some(r => r.id === recipe.id)) return prev;
+      return [...prev, recipe];
+    });
+  }, []);
 
   // Add recipe into plan from modal
   const handleAddToPlan = (recipeId: string, day: DayOfWeek, mealType: 'lunch' | 'dinner') => {
@@ -127,7 +144,11 @@ export default function App() {
             setServings={setServings}
             activeStore={activeStore}
             setActiveStore={setActiveStore}
-            onSelectRecipe={setSelectedRecipe}
+            recipes={allRecipes}
+            onSelectRecipe={(r) => {
+              registerRecipe(r);
+              setSelectedRecipe(r);
+            }}
             onOpenSwapModal={handleOpenSwapModal}
             onOpenPresetModal={() => setAutoPlanModalOpen(true)}
             onNavigateToGroceries={() => setActiveTab('groceries')}
@@ -136,7 +157,10 @@ export default function App() {
 
         {activeTab === 'recipes' && (
           <RecipeLibrary
-            onSelectRecipe={setSelectedRecipe}
+            onSelectRecipe={(r) => {
+              registerRecipe(r);
+              setSelectedRecipe(r);
+            }}
             onQuickAddToPlan={handleAddToPlan}
           />
         )}
@@ -147,6 +171,7 @@ export default function App() {
             servings={servings}
             activeStore={activeStore}
             setActiveStore={setActiveStore}
+            recipes={allRecipes}
           />
         )}
 
