@@ -1,0 +1,6 @@
+{
+  "name": "MakanPlan SG - Singapore Weekly Meal Planner",
+  "description": "Smart Singapore-focused weekly meal planner with authentic home-cooked recipes, wet market & supermarket grocery lists, and budget optimization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
